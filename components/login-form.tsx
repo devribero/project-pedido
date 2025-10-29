@@ -1,7 +1,12 @@
-import { GalleryVerticalEnd } from "lucide-react"
+'use client'
 
+import { GalleryVerticalEnd } from "lucide-react"
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import {
   Field,
   FieldDescription,
@@ -15,9 +20,34 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const [loading, setloading] = useState(false)
+  const [error, setError] = useState("")
+  const router = useRouter()
+
+  function handleLogin(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const senha = formData.get("senha") as string;
+
+    authClient.signIn.email({
+      email: email,
+      password: senha
+    },
+    {
+      onSuccess: () => router.push("/dashboard"),
+      onRequest: () => setloading(true),
+      onResponse:() => setloading(false),
+      onError: (ctx) => setError(ctx.error.message)
+    }
+
+  )
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <form>
+      <form onSubmit={handleLogin}>
         <FieldGroup>
           <div className="flex flex-col items-center gap-2 text-center">
             <a
@@ -37,6 +67,7 @@ export function LoginForm({
           <Field>
             <FieldLabel htmlFor="email">Email</FieldLabel>
             <Input
+              name="email"
               id="email"
               type="email"
               placeholder="m@example.com"
@@ -44,7 +75,16 @@ export function LoginForm({
             />
           </Field>
           <Field>
-            <Button type="submit">Login</Button>
+            <FieldLabel htmlFor="email">Senha</FieldLabel>
+            <Input
+              name="senha"
+              id="password"
+              type="password"
+              required
+            />
+          </Field>
+          <Field>
+            <Button disabled={loading} type="submit">{loading ? <Spinner /> : "Login"}</Button>
           </Field>
           <FieldSeparator>Or</FieldSeparator>
           <Field className="grid gap-4 sm:grid-cols-2">
@@ -68,6 +108,7 @@ export function LoginForm({
             </Button>
           </Field>
         </FieldGroup>
+        {error && error}
       </form>
       <FieldDescription className="px-6 text-center">
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
