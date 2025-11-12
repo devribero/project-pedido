@@ -72,6 +72,36 @@ model Verification {
 }
 
 model Categorias {
+  id       String    @id @default(uuid())
+  nome     String
+  produtos Produtos[]
+}
+
+model Produtos {
+  id          String    @id @default(uuid())
+  nome        String
+  descricao   String?
+  preco       Decimal   @db.Decimal(10, 2)
+  categoriaId String
+  categoria   Categorias @relation(fields: [categoriaId], references: [id])
+  pedidosProdutos PedidosProdutos[]
+}
+
+model Pedidos {
   id String @id @default(uuid())
-  nome String
+  nome_cliente String
+  endereco String?
+  telefone String?
+  produtos PedidosProdutos[]
+}
+
+model PedidosProdutos {
+  id String @id @default(uuid())
+  pedidoId String
+  pedido Pedidos @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  produtoId String
+  produto Produtos @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  quantidade Int @default(1)
+
+  @@unique([pedidoId, produtoId])
 }

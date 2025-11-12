@@ -8,6 +8,11 @@ export default async function CategoriasPage() {
   const categorias = await prisma.categorias.findMany({
     orderBy: {
       nome: 'asc'
+    },
+    include: {
+      _count: {
+        select: { produtos: true }
+      }
     }
   })
 
@@ -31,6 +36,7 @@ export default async function CategoriasPage() {
                 <CardTitle className="line-clamp-1 text-lg">{categoria.nome}</CardTitle>
               </CardHeader>
               <CardContent className="pb-3">
+                <p className="text-sm font-semibold">{categoria._count.produtos} {categoria._count.produtos === 1 ? 'produto' : 'produtos'}</p>
                 <p className="text-xs text-muted-foreground">ID: {categoria.id}</p>
               </CardContent>
               <CardFooter className='flex items-center justify-end gap-2'>

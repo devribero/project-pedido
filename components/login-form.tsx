@@ -36,7 +36,7 @@ export function LoginForm({
       password: senha
     },
     {
-      onSuccess: () => router.push("/dashboard"),
+      onSuccess: () => router.push("/painel/categorias"),
       onRequest: () => setloading(true),
       onResponse:() => setloading(false),
       onError: (ctx) => setError(ctx.error.message)
